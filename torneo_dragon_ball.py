@@ -70,25 +70,85 @@ def atacar(atacante, defensor):
     
     imprimir_lento(f"{atacante.nombre} hace {daño} de daño. {defensor.nombre} tiene {defensor.salud} de salud restante.")
 
+# Función para generar el cuadro del torneo aleatorio y guardarlo en una lista
+def generar_cuadro(luchadores):
+    random.shuffle(luchadores)  # Aleatorizamos el orden de los luchadores
+    cuadro = []
+    for i in range(0, len(luchadores), 2):
+        if i + 1 < len(luchadores):
+            cuadro.append((luchadores[i], luchadores[i + 1]))
+        else:
+            cuadro.append((luchadores[i], None))  # Luchador sin oponente
+    return cuadro
+
+# Función para mostrar el cuadro del torneo a partir de la lista generada
+def mostrar_cuadro_torneo(cuadro, ronda_actual):
+    imprimir_lento(f"\nCuadro de la ronda {ronda_actual}:")
+    max_name_length = max(len(luchador.nombre) for par in cuadro for luchador in par if luchador)
+    espacio = " " * 5
+
+    # Mostrar los enfrentamientos
+    for luchador1, luchador2 in cuadro:
+        if luchador2:
+            print(f"{luchador1.nombre.ljust(max_name_length)} {espacio} vs {espacio} {luchador2.nombre.ljust(max_name_length)}")
+        else:
+            print(f"{luchador1.nombre.ljust(max_name_length)} avanza automáticamente.")
+
+# Función principal para gestionar el torneo
 def torneo(luchadores):
+    ronda_actual = 1
     while len(luchadores) > 1:
+        cuadro = generar_cuadro(luchadores)  # Generar el cuadro de la ronda
+        mostrar_cuadro_torneo(cuadro, ronda_actual)  # Mostrar el cuadro
+
         ganadores = []
-        random.shuffle(luchadores)  # Mezclar los luchadores aleatoriamente
-        for i in range(0, len(luchadores), 2):
-            luchador1 = luchadores[i]
-            luchador2 = luchadores[i+1]
-            ganador = batalla(luchador1, luchador2)
-            ganadores.append(ganador)
-        luchadores = ganadores
+        for luchador1, luchador2 in cuadro:
+            if luchador2:  # Si hay dos luchadores, se realiza la batalla
+                ganador = batalla(luchador1, luchador2)
+                ganadores.append(ganador)
+            else:  # Si no hay oponente, el luchador avanza automáticamente
+                ganadores.append(luchador1)
+                imprimir_lento(f"{luchador1.nombre} avanza automáticamente a la siguiente ronda.")
+        
+        luchadores = ganadores  # Actualizamos los luchadores para la siguiente ronda
+        ronda_actual += 1
+
     imprimir_lento(f"\nEl ganador del torneo es {luchadores[0].nombre}!")
 
-# Ejemplo de creación de luchadores
-luchadores = [
-    Luchador("Goku", 80, 90, 70),
-    Luchador("Vegeta", 75, 85, 80),
-    Luchador("Piccolo", 70, 75, 85),
-    Luchador("Gohan", 85, 80, 75)
-]
+# Función para crear luchadores personalizados
+def crear_luchador():
+    nombre = input("Introduce el nombre del luchador: ")
+    velocidad = int(input("Introduce la velocidad (0-100): "))
+    ataque = int(input("Introduce el ataque (0-100): "))
+    defensa = int(input("Introduce la defensa (0-100): "))
+    return Luchador(nombre, velocidad, ataque, defensa)
 
-# Iniciar el torneo
-torneo(luchadores)
+# Menú de selección
+def menu_principal():
+    imprimir_lento("¡Bienvenido al Torneo Dragon Ball!")
+    imprimir_lento("1. Usar luchadores predeterminados (Goku, Vegeta, Piccolo, Gohan)")
+    imprimir_lento("2. Crear luchadores personalizados")
+    opcion = input("Elige una opción (1 o 2): ")
+    
+    if opcion == "1":
+        luchadores = [
+            Luchador("Goku", 80, 90, 70),
+            Luchador("Vegeta", 75, 85, 80),
+            Luchador("Piccolo", 70, 75, 85),
+            Luchador("Gohan", 85, 80, 75)
+        ]
+    elif opcion == "2":
+        luchadores = []
+        cantidad = int(input("¿Cuántos luchadores quieres crear? (mínimo 2): "))
+        for _ in range(cantidad):
+            luchador = crear_luchador()
+            luchadores.append(luchador)
+    else:
+        imprimir_lento("Opción no válida. Saliendo del programa.")
+        return
+    
+    imprimir_lento("¡Que comience el torneo!")
+    torneo(luchadores)
+
+# Iniciar el programa
+menu_principal()
