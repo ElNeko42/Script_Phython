@@ -8,6 +8,12 @@ def imprimir_lento(texto, delay=0.05):
         time.sleep(delay)
     print()  # Nueva línea al final
 
+# Función para mostrar barras de salud en la terminal
+def mostrar_barra_salud(luchador, longitud=20):
+    barra_completa = int((luchador.salud / 100) * longitud)
+    barra = '█' * barra_completa + '-' * (longitud - barra_completa)
+    print(f"{luchador.nombre} [ {barra} ] {luchador.salud}/100")
+
 class Luchador:
     def __init__(self, nombre, velocidad, ataque, defensa):
         self.nombre = nombre
@@ -23,6 +29,10 @@ def batalla(luchador1, luchador2):
     imprimir_lento(f"\nBatalla entre {luchador1.nombre} y {luchador2.nombre}!")
     
     while luchador1.salud > 0 and luchador2.salud > 0:
+        # Mostrar las barras de salud antes de cada turno
+        mostrar_barra_salud(luchador1)
+        mostrar_barra_salud(luchador2)
+        
         if luchador1.velocidad >= luchador2.velocidad:
             atacar(luchador1, luchador2)
             if luchador2.salud > 0:
@@ -31,6 +41,10 @@ def batalla(luchador1, luchador2):
             atacar(luchador2, luchador1)
             if luchador1.salud > 0:
                 atacar(luchador1, luchador2)
+
+    # Mostrar las barras de salud finales
+    mostrar_barra_salud(luchador1)
+    mostrar_barra_salud(luchador2)
 
     if luchador1.salud > 0:
         imprimir_lento(f"{luchador1.nombre} gana la batalla!")
